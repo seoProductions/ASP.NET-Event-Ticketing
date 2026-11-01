@@ -40,11 +40,11 @@ else
     protected override async Task OnInitializedAsync()
     {
         // Test URL in local disk
-        //forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
         
         // temporary Localhost Backend API
-        const string backendURL = "http://localhost:5158/weatherforecast";
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>(backendURL);
+        //const string backendURL = "http://localhost:5158/weatherforecast";
+        ///forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>(backendURL);
     }
 
     public class WeatherForecast

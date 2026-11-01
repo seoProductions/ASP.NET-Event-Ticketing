@@ -1,18 +1,70 @@
 ﻿@page "/EventSearch"
+@inject HttpClient Http
 
 <PageTitle>EventSearch</PageTitle>
 
-<h1>EventSearch</h1>
+<h1>Search for Events</h1>
 
-<p role="status">Current count: @currentCount</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+@if (eventsList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Location</th>
+            <th>Price</th>
+            <th>Tickets Left</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var event_item in eventsList)
+        {
+            <tr>
+                <td>@event_item.Name</td>
+                <td>@event_item.Date.ToShortDateString()</td>
+                <td>@event_item.Time</td>
+                <td>@event_item.Location</td>
+                <td>@event_item.price</td>
+                <td>@event_item.ticketsLeft</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
 
-@code {
-    private int currentCount = 0;
 
-    private void IncrementCount()
+@code 
+{
+    private Event[]? eventsList;
+
+    protected override async Task OnInitializedAsync()
     {
-        currentCount += 2;
+        // Test URL in local disk
+        eventsList = await Http.GetFromJsonAsync<Event[]>("sample-data/events.json");
+        // temporary Localhost Backend API
+        //const string backendURL = "http://localhost:5158/events";
+        ///eventsList = await Http.GetFromJsonAsync<WeatherForecast[]>(backendURL);
     }
+    
+    public class Event
+    {
+        public string Name { get; set; }
+        
+        public DateOnly Date { get; set; }
+
+        public string Time { get; set; }
+        
+        public string Location { get; set; }
+        
+        public int price { get; set; }
+        
+        public int ticketsLeft { get; set; }
+    } 
 }
