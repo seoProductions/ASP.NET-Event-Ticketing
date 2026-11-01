@@ -1,0 +1,242 @@
+﻿[
+  {
+    "Name": "Mexico vs South Africa",
+    "Date": "2026-06-11",
+    "Time": "13:00:00",
+    "Location": "Mexico City",
+    "Price": 199,
+    "Tickets Available": 12
+  },
+  {
+    "Name": "Korea Republic vs Czechia",
+    "Date": "2026-06-11",
+    "Time": "20:00:00",
+    "Location": "Guadalajara",
+    "Price": 145,
+    "Tickets Available": 27
+  },
+  {
+    "Name": "Canada vs Bosnia and Herzegovina",
+    "Date": "2026-06-12",
+    "Time": "15:00:00",
+    "Location": "Toronto",
+    "Price": 175,
+    "Tickets Available": 31
+  },
+  {
+    "Name": "USA vs Paraguay",
+    "Date": "2026-06-12",
+    "Time": "18:00:00",
+    "Location": "Los Angeles",
+    "Price": 225,
+    "Tickets Available": 8
+  },
+  {
+    "Name": "Haiti vs Scotland",
+    "Date": "2026-06-13",
+    "Time": "12:00:00",
+    "Location": "Boston",
+    "Price": 110,
+    "Tickets Available": 45
+  },
+  {
+    "Name": "Australia vs Türkiye",
+    "Date": "2026-06-13",
+    "Time": "15:00:00",
+    "Location": "Vancouver",
+    "Price": 135,
+    "Tickets Available": 22
+  },
+  {
+    "Name": "Brazil vs Morocco",
+    "Date": "2026-06-13",
+    "Time": "18:00:00",
+    "Location": "New York/New Jersey",
+    "Price": 350,
+    "Tickets Available": 5
+  },
+  {
+    "Name": "Qatar vs Switzerland",
+    "Date": "2026-06-13",
+    "Time": "21:00:00",
+    "Location": "San Francisco Bay Area",
+    "Price": 160,
+    "Tickets Available": 19
+  },
+  {
+    "Name": "Cote d'Ivoire vs Ecuador",
+    "Date": "2026-06-14",
+    "Time": "12:00:00",
+    "Location": "Philadelphia",
+    "Price": 125,
+    "Tickets Available": 34
+  },
+  {
+    "Name": "Germany vs Curacao",
+    "Date": "2026-06-14",
+    "Time": "12:00:00",
+    "Location": "Houston",
+    "Price": 275,
+    "Tickets Available": 14
+  },
+  {
+    "Name": "Netherlands vs Japan",
+    "Date": "2026-06-14",
+    "Time": "15:00:00",
+    "Location": "Dallas",
+    "Price": 240,
+    "Tickets Available": 17
+  },
+  {
+    "Name": "Sweden vs Tunisia",
+    "Date": "2026-06-14",
+    "Time": "22:00:00",
+    "Location": "Monterrey",
+    "Price": 120,
+    "Tickets Available": 39
+  },
+  {
+    "Name": "Saudi Arabia vs Uruguay",
+    "Date": "2026-06-15",
+    "Time": "18:00:00",
+    "Location": "Miami",
+    "Price": 190,
+    "Tickets Available": 26
+  },
+  {
+    "Name": "Spain vs Cabo Verde",
+    "Date": "2026-06-15",
+    "Time": "19:00:00",
+    "Location": "Atlanta",
+    "Price": 260,
+    "Tickets Available": 11
+  },
+  {
+    "Name": "Iran vs New Zealand",
+    "Date": "2026-06-15",
+    "Time": "21:00:00",
+    "Location": "Los Angeles",
+    "Price": 155,
+    "Tickets Available": 33
+  },
+  {
+    "Name": "Belgium vs Egypt",
+    "Date": "2026-06-15",
+    "Time": "18:00:00",
+    "Location": "Seattle",
+    "Price": 210,
+    "Tickets Available": 16
+  },
+  {
+    "Name": "France vs Senegal",
+    "Date": "2026-06-16",
+    "Time": "15:00:00",
+    "Location": "New York/New Jersey",
+    "Price": 325,
+    "Tickets Available": 7
+  },
+  {
+    "Name": "Argentina vs Algeria",
+    "Date": "2026-06-16",
+    "Time": "20:00:00",
+    "Location": "Kansas City",
+    "Price": 290,
+    "Tickets Available": 13
+  },
+  {
+    "Name": "England vs Croatia",
+    "Date": "2026-06-17",
+    "Time": "15:00:00",
+    "Location": "Dallas",
+    "Price": 310,
+    "Tickets Available": 9
+  },
+  {
+    "Name": "Portugal vs Colombia",
+    "Date": "2026-06-17",
+    "Time": "12:00:00",
+    "Location": "Houston",
+    "Price": 280,
+    "Tickets Available": 21
+  },
+  {
+    "Name": "Uzbekistan vs Colombia",
+    "Date": "2026-06-17",
+    "Time": "20:00:00",
+    "Location": "Mexico City",
+    "Price": 150,
+    "Tickets Available": 37
+  },
+  {
+    "Name": "Mexico vs Korea Republic",
+    "Date": "2026-06-18",
+    "Time": "19:00:00",
+    "Location": "Guadalajara",
+    "Price": 230,
+    "Tickets Available": 18
+  },
+  {
+    "Name": "Brazil vs Haiti",
+    "Date": "2026-06-19",
+    "Time": "18:00:00",
+    "Location": "Philadelphia",
+    "Price": 275,
+    "Tickets Available": 10
+  },
+  {
+    "Name": "Scotland vs Morocco",
+    "Date": "2026-06-19",
+    "Time": "21:00:00",
+    "Location": "Boston",
+    "Price": 165,
+    "Tickets Available": 28
+  },
+  {
+    "Name": "USA vs Australia",
+    "Date": "2026-06-19",
+    "Time": "18:00:00",
+    "Location": "Seattle",
+    "Price": 245,
+    "Tickets Available": 6
+  },
+  {
+    "Name": "Germany vs Cote d'Ivoire",
+    "Date": "2026-06-20",
+    "Time": "15:00:00",
+    "Location": "Toronto",
+    "Price": 215,
+    "Tickets Available": 24
+  },
+  {
+    "Name": "Netherlands vs Sweden",
+    "Date": "2026-06-20",
+    "Time": "12:00:00",
+    "Location": "Houston",
+    "Price": 250,
+    "Tickets Available": 15
+  },
+  {
+    "Name": "Tunisia vs Japan",
+    "Date": "2026-06-20",
+    "Time": "22:00:00",
+    "Location": "Monterrey",
+    "Price": 140,
+    "Tickets Available": 41
+  },
+  {
+    "Name": "Argentina vs Austria",
+    "Date": "2026-06-22",
+    "Time": "21:00:00",
+    "Location": "Dallas",
+    "Price": 300,
+    "Tickets Available": 4
+  },
+  {
+    "Name": "Portugal vs Uzbekistan",
+    "Date": "2026-06-23",
+    "Time": "12:00:00",
+    "Location": "Houston",
+    "Price": 265,
+    "Tickets Available": 20
+  }
+]
