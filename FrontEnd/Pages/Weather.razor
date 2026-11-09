@@ -1,5 +1,9 @@
 ﻿@page "/Checkout"
+@using Microsoft.AspNetCore.Authorization
 @inject HttpClient Http
+
+
+@attribute [Authorize(Roles = "customer,organizer,admin")]
 
 <PageTitle>Checkout</PageTitle>
 

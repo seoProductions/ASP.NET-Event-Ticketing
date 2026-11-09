@@ -1,69 +1,17 @@
 ﻿@page "/"
+@using System.Net
 
-<PageTitle>Login / Sign Up</PageTitle>
+<PageTitle>Home</PageTitle>
 
-<div align="center">
-
-	<h1> Event Ticketing</h1>
+<div class="nav-item px-3" align="center">
+	<h1>Event Ticketing</h1>
 	<h2>Find the latest new Sport Games here</h2>
 	
-	<div style="display: flex; gap: 10px;">
-		<button class="bi bi-list-nested-nav-menu nav-item px-3" aria-hidden="true" @onclick="SetSignInMenu"> Sign In</button>
-		<button class="bi bi-list-nested-nav-menu nav-item px-3" aria-hidden="true" @onclick="SetRegisterMenu"> Sign Up</button>
-	</div>	
-
-	@if (!tryingToRegister)
-	{
-		<h3>Welcome back!</h3>
-
-		<p>Username</p>
-		<textarea  cols="10" ></textarea >
-		<p>Password</p>
-		<textarea  cols="10"></textarea >
-		<br>
-
-		<button class="bi bi-list-nested-nav-menu" aria-hidden="true" @onclick="SignInRequest"> Enter</button>
-	}	
-	else
-	{
-		<h3>Please enter your info below:</h3>
-
-		<p>Username</p>
-		<textarea  cols="10"></textarea >
-		<p>Name</p>
-		<textarea  cols="10" ></textarea >
-		<p>LastName</p>
-		<textarea  cols="10" ></textarea >		
-		<p>Password</p>
-		<textarea  cols="10"></textarea >
-		<br>		
-
-		<button class="bi bi-list-nested-nav-menu" aria-hidden="true" @onclick="SignUpRequest"> Enter</button>
-	}	
-
-	
+	<NavLink class="nav-link" href="Login" Match="NavLinkMatch.All">
+		<span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Sign In
+	</NavLink>
 </div>
 
 @code {
-	private bool tryingToRegister = false;
-
-	private void SetRegisterMenu()
-    {
-        tryingToRegister = true;
-    }
-	private void SetSignInMenu()
-    {
-        tryingToRegister = false;
-    }
-
-	private void SignInRequest()
-	{
-
-	}
-
-	private void SignUpRequest()
-	{
-		
-	}
 
 }

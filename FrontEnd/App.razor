@@ -1,6 +1,25 @@
-﻿<Router AppAssembly="@typeof(App).Assembly" NotFoundPage="typeof(Pages.NotFound)">
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+<Router AppAssembly="@typeof(Program).Assembly">
+
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+
+        <AuthorizeRouteView
+            RouteData="@routeData"
+            DefaultLayout="@typeof(MainLayout)">
+
+            <NotAuthorized>
+                <h3>Access Denied</h3>
+                <p>You don't have permission to view this page.</p>
+                <a href="/login">Go to Login</a>
+            </NotAuthorized>
+
+        </AuthorizeRouteView>
+
     </Found>
+
+    <NotFound>
+        <h3>Page Not Found</h3>
+    </NotFound>
+
 </Router>
