@@ -9,10 +9,10 @@ public static class ApiEndpoints
     
     public static void RegisterApiEndpoints(this WebApplication app)
     {
-        app.MapGet("/search", GetEventSearch).RequireAuthorization();
+        app.MapGet("/search", GetEventSearch).RequireAuthorization("customer,organizer,admin");
         
         
-        app.MapGet("/search/{id}", GetEventData).RequireAuthorization();
+        app.MapGet("/search/{id}", GetEventData).RequireAuthorization("customer,organizer,admin");
         
         // Test organizer authentication
         app.MapGet("/organizer/", () =>
