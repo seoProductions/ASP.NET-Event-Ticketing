@@ -1,0 +1,119 @@
+﻿@page "/Login"
+
+@using System.Net.Http.Json
+@using FrontEnd.Authentication
+@using FrontEnd.DTOs
+
+@inject IHttpClientFactory HttpFactory
+@inject CustomAuthStateProvider Auth
+@inject NavigationManager Navigation
+
+
+<PageTitle>Login / Sign Up</PageTitle>
+
+
+<div align="center">
+    
+    <button  class="nav-link" @onclick="SetSignInMenu" Match="NavLinkMatch.All">
+        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Sign In
+    </button>
+    <button  class="nav-link" @onclick="SetRegisterMenu" Match="NavLinkMatch.All">
+        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Sign Up
+    </button>
+    
+    @if (!tryingToRegister)
+    {
+        <h3>Welcome back! Please Login</h3>
+
+        <input @bind="username" placeholder="Username" />
+        
+        <input @bind="password"
+               type="password"
+               placeholder="Password" />
+        <br>
+
+        <NavLink class="nav-link" @onclick="LoginUser" Match="NavLinkMatch.All">
+            <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Login
+        </NavLink>
+    }	
+    else
+    {
+        <h3>Please enter your info below:</h3>
+
+        <p>Username</p>
+        <textarea  cols="10"></textarea>
+        <p>Name</p>
+        <textarea  cols="10" ></textarea>
+        <p>LastName</p>
+        <textarea  cols="10" ></textarea>		
+        <p>Password</p>
+        <textarea  cols="10"></textarea>
+        <br>		
+
+        <NavLink class="nav-link" @onclick="LoginUser" Match="NavLinkMatch.All">
+            <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Login
+        </NavLink>
+        
+    }	
+    
+    <p>@message</p>
+	
+</div>
+
+@code {
+    private string username = "";
+    private string password = "";
+    private string message = "";
+    private bool tryingToRegister = false;
+    
+
+    private void SetRegisterMenu() => tryingToRegister = true;
+    
+    private void SetSignInMenu() => tryingToRegister = false;
+    
+    
+    private async Task LoginUser()
+    {
+        var client = HttpFactory.CreateClient("API");
+
+        var response = await client.PostAsJsonAsync(
+            "Login",
+            new LoginRequest
+            {
+                Username = username,
+                Password = password
+            });
+
+        if (!response.IsSuccessStatusCode)
+        {
+            message = "Invalid username or password.";
+            return;
+        }
+
+        var result = await response.Content
+            .ReadFromJsonAsync<LoginResponse>();
+
+        if (result == null)
+        {
+            message = "Login failed.";
+            return;
+        }
+
+        Auth.SetToken(result.Token);
+
+        switch (result.Role)
+        {
+            case "admin":
+                Navigation.NavigateTo("/admin");
+                break;
+
+            case "organizer":
+                Navigation.NavigateTo("/organizer");
+                break;
+
+            case "customer":
+                Navigation.NavigateTo("/customer");
+                break;
+        }
+    }
+}

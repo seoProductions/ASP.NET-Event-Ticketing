@@ -1,29 +1,46 @@
-﻿namespace EventTicketingAPI;
+﻿using BackEnd.DatabaseModels;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+
+namespace BackEnd;
 
 public static class ApiEndpoints
 {
-    /*
+    
     public static void RegisterApiEndpoints(this WebApplication app)
     {
-        app.MapGet("/search", GetEventSearch);
-        
-        app.MapGet("/search/{id}", GetEventData);
+        app.MapGet("/search", GetEventSearch).RequireAuthorization("customer,organizer,admin");
         
         
-        //app.MapGet("/todoitems/complete", async (TodoDb db) =>
-        //    await db.Todos.Where(t => t.IsComplete).ToListAsync());
+        app.MapGet("/search/{id}", GetEventData).RequireAuthorization("customer,organizer,admin");
+        
+        // Test organizer authentication
+        app.MapGet("/organizer/", () =>
+            {
+                return Results.Ok("Welcome Organizer!");
+            })
+            .RequireAuthorization(policy => policy.RequireRole("organizer"));
+        
+        // Test admin authentication
+        app.MapGet("/admin/", () =>
+            {
+                return Results.Ok("Welcome Admin!");
+            })
+            .RequireAuthorization(policy => policy.RequireRole("admin"));
     }
 
 
-    static async Task<Results<Ok<Todo>, NotFound>> GetEventSearch(TodoDb db) =>
-        await db.Todos.ToListAsync();
+    // sends every event in database
+    static async Task<Ok<List<Event>>> GetEventSearch(AppDbContext db) =>
+        TypedResults.Ok(await db.Events.ToListAsync());
     
     
-    static async Task<Results<Ok<Todo>, NotFound>> GetEventData(int id, TodoDb db) =>
-        await db.Todos.FindAsync(id)
-            is Todo todo
-            ? TypedResults.Ok(todo)
+    
+    // sends event data in database. depending on the id
+    static async Task<Results<Ok<Event>, NotFound>> GetEventData(int id, AppDbContext db) =>
+        await db.Events.FindAsync(id)
+            is Event e
+            ? TypedResults.Ok(e)
             : TypedResults.NotFound();
-
-*/
+    
 }
