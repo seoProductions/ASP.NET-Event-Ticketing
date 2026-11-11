@@ -1,74 +1,135 @@
 ﻿@page "/EventSearch"
+
+@using System.Net.Http.Json
 @using Microsoft.AspNetCore.Authorization
+@using FrontEnd.DTOs
+
 @inject HttpClient Http
+@inject IHttpClientFactory HttpFactory
+@inject NavigationManager Navigation
 
+@*
 @attribute [Authorize(Roles = "customer,organizer,admin")]
+*@
 
+<PageTitle>Search Events</PageTitle>
 
-<PageTitle>EventSearch</PageTitle>
+<h3>Available Events</h3>
 
-<h1>Search for Events</h1>
-
-
-@if (eventsList == null)
+@if (isLoading)
 {
-    <p><em>Loading...</em></p>
+    <p>Loading events...</p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+else if (events.Count == 0)
+{
+    <p>No events found.</p>
 }
 else
 {
-    <table class="table">
+    <table class="table table-striped">
         <thead>
-        <tr>
-            <th>Name</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Location</th>
-            <th>Price</th>
-            <th>Tickets Left</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var event_item in eventsList)
-        {
             <tr>
-                <td>@event_item.Name</td>
-                <td>@event_item.Date.ToShortDateString()</td>
-                <td>@event_item.Time</td>
-                <td>@event_item.Location</td>
-                <td>@event_item.price</td>
-                <td>@event_item.ticketsLeft</td>
+                <th>Title</th>
+                <th>Location</th>
+                <th>Date</th>
+                <th>Price</th>
+                <th>Tickets Left</th>
+                <th>Action</th>
             </tr>
-        }
+        </thead>
+
+        <tbody>
+            @foreach (var eventItem in events)
+            {
+                <tr>
+                    <td>@eventItem.Title</td>
+                    <td>@eventItem.Location</td>
+                    <td>@eventItem.EventDate.ToString("MMM dd, yyyy h:mm tt")</td>
+                    <td>@eventItem.Price.ToString("C")</td>
+                    <td>@eventItem.AvailableTickets</td>
+
+                    <td>
+                        <button class="btn btn-primary"
+                                @onclick="() => SelectEvent(eventItem)">
+                            Select Event
+                        </button>
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
 }
 
-
-@code 
+@if (selectedEvent != null)
 {
-    private Event[]? eventsList;
+    <hr />
+
+    <h4>Selected Event</h4>
+
+    <p><strong>Event:</strong> @selectedEvent.Title</p>
+    <p><strong>Description:</strong> @selectedEvent.Description</p>
+    <p><strong>Location:</strong> @selectedEvent.Location</p>
+    <p><strong>Date:</strong> @selectedEvent.EventDate</p>
+    <p><strong>Price:</strong> @selectedEvent.Price.ToString("C")</p>
+
+    <button class="btn btn-success"
+            @onclick="ContinueToEvent">
+        Continue
+    </button>
+}
+
+@code {
+    private List<EventDto> events = new();
+
+    private EventDto? selectedEvent;
+
+    private bool isLoading = true;
+
+    private string errorMessage = "";
 
     protected override async Task OnInitializedAsync()
     {
-        // Test URL in local disk
-        eventsList = await Http.GetFromJsonAsync<Event[]>("sample-data/events.json");
-        // temporary Localhost Backend API
-        //const string backendURL = "http://localhost:5158/events";
-        ///eventsList = await Http.GetFromJsonAsync<WeatherForecast[]>(backendURL);
+        await LoadEvents();
     }
-    
-    public class Event
-    {
-        public string Name { get; set; }
-        
-        public DateOnly Date { get; set; }
 
-        public string Time { get; set; }
-        
-        public string Location { get; set; }
-        
-        public int price { get; set; }
-        
-        public int ticketsLeft { get; set; }
-    } 
+    private async Task LoadEvents()
+    {
+        try
+        {
+            var client = HttpFactory.CreateClient("API");
+
+            // GET request to http://localhost:5158/search
+            events = await client.GetFromJsonAsync<List<EventDto>>("search")
+                     ?? new List<EventDto>();
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Could not load events: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Unexpected error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SelectEvent(EventDto eventItem)
+    {
+        selectedEvent = eventItem;
+    }
+
+    private void ContinueToEvent()
+    {
+        if (selectedEvent == null)
+            return;
+
+        Navigation.NavigateTo($"/Event/{selectedEvent.Id}");
+    }
 }

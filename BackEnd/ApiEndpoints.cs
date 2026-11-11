@@ -1,4 +1,5 @@
 ﻿using BackEnd.DatabaseModels;
+using BackEnd.DTOs;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,10 +10,16 @@ public static class ApiEndpoints
     
     public static void RegisterApiEndpoints(this WebApplication app)
     {
-        app.MapGet("/search", GetEventSearch).RequireAuthorization("customer,organizer,admin");
-        
-        
-        app.MapGet("/search/{id}", GetEventData).RequireAuthorization("customer,organizer,admin");
+        app.MapGet("/search", GetEventSearch);
+        //.RequireAuthorization("customer,organizer,admin");
+
+
+        app.MapGet("/search/{id:int}", GetEventData);
+        //.RequireAuthorization("customer,organizer,admin");
+
+        app.MapPost("/purchase/{id:int}+{quantity:int}", PurchaseItem);
+        //.RequireAuthorization("customer,organizer,admin");
+
         
         // Test organizer authentication
         app.MapGet("/organizer/", () =>
@@ -23,6 +30,13 @@ public static class ApiEndpoints
         
         // Test admin authentication
         app.MapGet("/admin/", () =>
+            {
+                return Results.Ok("Welcome Admin!");
+            })
+            .RequireAuthorization(policy => policy.RequireRole("admin"));
+        
+        
+        app.MapGet("/admin/delete/{id}", () =>
             {
                 return Results.Ok("Welcome Admin!");
             })
@@ -42,5 +56,33 @@ public static class ApiEndpoints
             is Event e
             ? TypedResults.Ok(e)
             : TypedResults.NotFound();
-    
+
+
+    static async Task<IResult> PurchaseItem(
+        PurchaseItem request,
+        AppDbContext db,
+        IConfiguration config)
+    {
+        var events = await db.Events.FirstOrDefaultAsync(u => u.Id == request.ID);
+
+        if (events == null)
+            return Results.BadRequest();
+
+        Decimal price = events.Price;
+        Decimal totalTransaction = request.quantity * price;
+
+        if (events.AvailableTickets > 0)
+            events.AvailableTickets--;
+        else
+        {
+            return Results.BadRequest();
+        }
+
+        db.Events.Update(events);
+        int save = await db.SaveChangesAsync();
+        
+        // todo check if database transaction is valid
+        return Results.Ok();
+    }
+
 }
