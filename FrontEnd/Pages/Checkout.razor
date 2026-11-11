@@ -1,0 +1,135 @@
+﻿@page "/Checkout/{id:int}+quantity={quantity:int}"
+
+
+@using FrontEnd.DTOs
+@using Microsoft.AspNetCore.Authorization
+@inject HttpClient Http
+@inject IHttpClientFactory HttpFactory
+@inject NavigationManager Navigation
+
+@*
+@attribute [Authorize(Roles = "customer,organizer,admin")]
+*@
+
+<PageTitle>Checkout</PageTitle>
+
+<h1>Checkout</h1>
+ 
+<div align="left">
+    @if (outEvent == null)
+    {
+        <h2>Unable to find your event!</h2>
+    }
+    @if (errorMessage != null && !isLoading)
+    {
+        <h2>Unable to find your event!</h2>
+    }
+    @if (isLoading)
+    {
+        <h2>Loading...</h2>
+    }
+    @if (!isLoading && outEvent != null)
+    {
+        <h2>Almost there!</h2>
+        <br/>
+        
+        <h3>@outEvent.Title</h3>
+        <p>@outEvent.Description</p>
+        <br/>
+        
+        <p>Tickets Left: @outEvent.AvailableTickets</p>
+        <p>At: @outEvent.Location</p>
+        <p>When: @outEvent.EventDate.ToShortTimeString()</p>
+        <p>Price: @outEvent.Price</p>
+        
+        <h3>Buying: @quantity.ToString()</h3>
+        <p>Total: @total.ToString()</p>
+     
+        <button class="btn btn-secondary mt-2"
+                @onclick="Purchase">
+            Purchase
+        </button>
+    }
+    
+    @if (sucessMessage != null)
+    {
+        <h1>@sucessMessage</h1>   
+    }
+</div>
+
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    
+    [Parameter]
+    public int quantity { get; set; }
+
+    public bool isLoading = true;
+    public string errorMessage;
+    public string sucessMessage;
+    public decimal total = 0;
+    private EventDto? outEvent;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEvents();
+    }
+
+    private async Task LoadEvents()
+    {
+        try
+        {
+            var client = HttpFactory.CreateClient("API");
+
+            // GET request to http://localhost:5158/search/id
+            outEvent = await client.GetFromJsonAsync<EventDto>($"search/{id}")
+                       ?? new EventDto();
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Could not load events: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Unexpected error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            
+            if (outEvent != null)
+                total = outEvent.Price * quantity;
+        }
+    }
+
+
+    private async Task Purchase()
+    {
+        var client = HttpFactory.CreateClient("API");
+
+        var response = await client.PostAsJsonAsync(
+            "Login",
+            new PurchaseItem
+            {
+                ID = this.id,
+                quantity = this.quantity
+            });
+
+        if (!response.IsSuccessStatusCode)
+        {
+            sucessMessage = "Purchase Completed! Thank you";
+            return;
+        }
+
+        var result = await response.Content
+            .ReadFromJsonAsync<LoginResponse>();
+
+        if (result == null)
+        {
+            errorMessage = "Uh Oh! Purchase couldn't go through";
+            return;
+        }
+    }
+
+}

@@ -1,0 +1,169 @@
+﻿@page "/Event/{Id:int}"
+
+@using System.Net.Http.Json
+@using FrontEnd.DTOs
+
+@inject IHttpClientFactory HttpFactory
+@inject NavigationManager Navigation
+
+<PageTitle>Event Details</PageTitle>
+
+<h3>Event Details</h3>
+
+@if (isLoading)
+{
+    <p>Loading event information...</p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+
+    <button class="btn btn-secondary"
+            @onclick="GoBack">
+        Go Back
+    </button>
+}
+else if (eventData != null)
+{
+    <div class="card p-4">
+
+        <h2>@eventData.Title</h2>
+
+        <hr />
+
+        <h5>Description</h5>
+        <p>@eventData.Description</p>
+
+        <h5>Location</h5>
+        <p>@eventData.Location</p>
+
+        <h5>Date and Time</h5>
+        <p>@eventData.EventDate.ToString("MMMM dd, yyyy - h:mm tt")</p>
+
+        <hr />
+
+        <h4>Ticket Information</h4>
+
+        <p>
+            <strong>Ticket Price:</strong>
+            @eventData.Price.ToString("C")
+        </p>
+
+        <p>
+            <strong>Available Tickets:</strong>
+            @eventData.AvailableTickets
+        </p>
+
+        <hr />
+
+        <h4>Purchase Tickets</h4>
+
+        <label>Quantity:</label>
+
+        <input type="number"
+               class="form-control"
+               style="max-width:150px"
+               min="1"
+               max="@eventData.AvailableTickets"
+               @bind="ticketQuantity" />
+
+        <p class="mt-3">
+            <strong>Total:</strong>
+            @((eventData.Price * ticketQuantity).ToString("C"))
+        </p>
+
+        <button class="btn btn-success"
+                disabled="@(eventData.AvailableTickets <= 0 ||
+                            ticketQuantity < 1 ||
+                            ticketQuantity > eventData.AvailableTickets)"
+                @onclick="ContinueToCheckout">
+            Continue to Checkout
+        </button>
+
+        <button class="btn btn-secondary mt-2"
+                @onclick="GoBack">
+            Back to Search
+        </button>
+
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private EventDto? eventData;
+
+    private int ticketQuantity = 1;
+
+    private bool isLoading = true;
+
+    private string errorMessage = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadEvent();
+    }
+
+    private async Task LoadEvent()
+    {
+        isLoading = true;
+        errorMessage = "";
+        eventData = null;
+        ticketQuantity = 1;
+
+        try
+        {
+            var client = HttpFactory.CreateClient("API");
+
+            var response = await client.GetAsync($"search/{Id}");
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                errorMessage = "Event not found.";
+                return;
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            eventData = await response.Content
+                .ReadFromJsonAsync<EventDto>();
+
+            if (eventData == null)
+            {
+                errorMessage = "Could not load event information.";
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"API connection error: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Unexpected error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ContinueToCheckout()
+    {
+        if (eventData == null)
+            return;
+
+        if (ticketQuantity < 1 ||
+            ticketQuantity > eventData.AvailableTickets)
+            return;
+
+        Navigation.NavigateTo(
+            $"/Checkout/{eventData.Id}+quantity={ticketQuantity}");
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/EventSearch");
+    }
+}

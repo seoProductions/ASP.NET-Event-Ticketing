@@ -14,30 +14,32 @@
 
 <div align="center">
     
-    <button  class="nav-link" @onclick="SetSignInMenu" Match="NavLinkMatch.All">
+    <button class="btn btn-primary" @onclick="SetSignInMenu">
         <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Sign In
     </button>
-    <button  class="nav-link" @onclick="SetRegisterMenu" Match="NavLinkMatch.All">
+    <button class="btn btn-primary" @onclick="SetRegisterMenu">
         <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Sign Up
     </button>
     
     @if (!tryingToRegister)
     {
-        <h3>Welcome back! Please Login</h3>
+        <h3>Welcome back! Please Login</h3> 
 
         <input @bind="username" placeholder="Username" />
         
         <input @bind="password"
                type="password"
                placeholder="Password" />
+        
+        <br>
         <br>
 
-        <NavLink class="nav-link" @onclick="LoginUser" Match="NavLinkMatch.All">
+        <button class="btn btn-success" @onclick="LoginUser" Match="NavLinkMatch.All">
             <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Login
-        </NavLink>
+        </button>
     }	
     else
-    {
+    {   
         <h3>Please enter your info below:</h3>
 
         <p>Username</p>
@@ -48,14 +50,16 @@
         <textarea  cols="10" ></textarea>		
         <p>Password</p>
         <textarea  cols="10"></textarea>
+        
         <br>		
+        <br>
 
-        <NavLink class="nav-link" @onclick="LoginUser" Match="NavLinkMatch.All">
+        <button class="btn btn-success" @onclick="LoginUser" Match="NavLinkMatch.All">
             <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Login
-        </NavLink>
+        </button>
         
     }	
-    
+    <br>
     <p>@message</p>
 	
 </div>
@@ -112,7 +116,7 @@
                 break;
 
             case "customer":
-                Navigation.NavigateTo("/customer");
+                Navigation.NavigateTo("/EventSearch");
                 break;
         }
     }
