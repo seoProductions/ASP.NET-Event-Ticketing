@@ -1,0 +1,147 @@
+﻿@page "/organizer/dashboard"
+@attribute [Authorize(Roles = "Organizer,Admin")]
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Organizer Dashboard</h2>
+        <button class="btn btn-primary" @onclick='() => Nav.NavigateTo("/organizer/events/create")'>
+            + Create New Event
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    @if (isLoading)
+    {
+        <p>Loading your events and sales metrics...</p>
+    }
+    else if (events.Count == 0)
+    {
+        <div class="alert alert-info">You haven't created any events yet.</div>
+    }
+    else
+    {
+        <!-- Summary Metrics Row (Owned Events Only) -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-bg-light p-3 shadow-sm">
+                    <h6>Owned Events</h6>
+                    <h3>@events.Count</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-bg-light p-3 shadow-sm">
+                    <h6>Total Tickets Sold</h6>
+                    <h3>@events.Sum(e => e.TicketsSold) / @events.Sum(e => e.TotalTickets)</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-bg-success p-3 shadow-sm">
+                    <h6>Total Gross Sales</h6>
+                    <h3>@events.Sum(e => e.GrossSales).ToString("C")</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Per-Event Metrics Table -->
+        <table class="table table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Price</th>
+                    <th>Tickets Sold / Capacity</th>
+                    <th>Remaining</th>
+                    <th>Sales Revenue</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ev in events)
+                {
+                    <tr>
+                        <td><strong>@ev.Title</strong><br /><small class="text-muted">@ev.Location</small></td>
+                        <td>@ev.EventDate.ToString("MMM dd, yyyy h:mm tt")</td>
+                        <td>@ev.TicketPrice.ToString("C")</td>
+                        <td>@ev.TicketsSold / @ev.TotalTickets</td>
+                        <td>@ev.TicketsRemaining</td>
+                        <td><strong>@ev.GrossSales.ToString("C")</strong></td>
+                        <td>
+                            @if (ev.IsCancelled)
+                            {
+                                <span class="badge bg-danger">Cancelled</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-2"
+                                    @onclick='() => Nav.NavigateTo($"/organizer/events/edit/{ev.EventId}")'>
+                                Edit
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger"
+                                    @onclick="() => DeleteEvent(ev.EventId)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<OrganizerEventMetricsDto> events = new();
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEvents();
+    }
+
+    private async Task LoadEvents()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            var result = await Http.GetFromJsonAsync<List<OrganizerEventMetricsDto>>("api/organizer/events");
+            events = result ?? new();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load metrics: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task DeleteEvent(int eventId)
+    {
+        var response = await Http.DeleteAsync($"api/organizer/events/{eventId}");
+        if (response.IsSuccessStatusCode)
+        {
+            events.RemoveAll(e => e.EventId == eventId);
+        }
+        else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        {
+            errorMessage = "Unauthorized: You do not own this event.";
+        }
+        else
+        {
+            errorMessage = "Could not delete the event.";
+        }
+    }
+}

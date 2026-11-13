@@ -1,10 +1,24 @@
-﻿using System;
+﻿public int Id { get; set; }
+public string Username { get; set; } = string.Empty;
+public string Email { get; set; } = string.Empty;
+public string Role { get; set; } = "Attendee"; // "Attendee", "Organizer", "Admin"
+public bool IsSuspended { get; set; } = false; // ADD THIS IF MISSING
+
+
+using System;
 using System.Collections.Generic;
 
 namespace BackEnd.DatabaseModels;
 
 public partial class User
 {
+
+public int Id { get; set; }
+public string Username { get; set; } = string.Empty;
+public string Email { get; set; } = string.Empty;
+public string Role { get; set; } = "Attendee"; // "Attendee", "Organizer", "Admin"
+public bool IsSuspended { get; set; } = false; // ADD THIS IF MISSING
+
     public int Id { get; set; }
 
     public string Username { get; set; } = null!;

@@ -75,6 +75,9 @@ app.RegisterAuthEndpoints();
 app.RegisterApiEndpoints();
 
 // Enable CORS middleware
+
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseRouting();
 app.UseCors("BlazorClient");
 app.UseAuthorization();
@@ -88,5 +91,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapOrganizerEndpoints();
+app.MapAdminEndpoints();
+
 
 app.Run();

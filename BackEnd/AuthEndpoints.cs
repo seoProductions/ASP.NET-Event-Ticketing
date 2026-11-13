@@ -13,12 +13,21 @@ public static class AuthEndpoints
     {
         app.MapPost("/login", Login);
     }
+Suspended users are blocked from logging in:
 
+C#
+if (user.IsSuspended)
+{
+    return Results.Forbid(); // Or Results.Unauthorized() with "Account suspended"
+}
     static async Task<IResult> Login(
         LoginRequest request,
         AppDbContext db,
         IConfiguration config)
     {
+
+
+
         // Find user
         var user = await db.Users
             .FirstOrDefaultAsync(u => u.Username == request.Username);
