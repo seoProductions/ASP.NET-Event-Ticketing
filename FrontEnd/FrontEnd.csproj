@@ -14,8 +14,4 @@
         <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.14" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Content Update="Pages\Home.razor.css" />
-    </ItemGroup>
-
 </Project>

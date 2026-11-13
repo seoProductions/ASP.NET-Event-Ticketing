@@ -1,0 +1,64 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace FrontEnd.DTOs;
+
+public class UpsertEventDto
+{
+    [Required(ErrorMessage = "Title is required")]
+    public string Title { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Description is required")]
+    public string Description { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Location is required")]
+    public string Location { get; set; } = string.Empty;
+
+    [Required]
+    public DateTime EventDate { get; set; } = DateTime.Now.AddDays(7);
+
+    [Range(0, 100000, ErrorMessage = "Price must be 0 or greater")]
+    public decimal TicketPrice { get; set; }
+
+    [Range(1, 1000000, ErrorMessage = "Total tickets must be at least 1")]
+    public int TotalTickets { get; set; } = 100;
+}
+
+public class OrganizerEventMetricsDto
+{
+    public int EventId { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public DateTime EventDate { get; set; }
+    public string Location { get; set; } = string.Empty;
+    public decimal TicketPrice { get; set; }
+    public int TotalTickets { get; set; }
+    public int TicketsSold { get; set; }
+    public int TicketsRemaining { get; set; }
+    public decimal GrossSales { get; set; }
+    public bool IsCancelled { get; set; }
+}
+
+public class AdminUserDto
+{
+    public int Id { get; set; }
+    public string Username { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
+    public bool IsSuspended { get; set; }
+}
+
+public class DisputeDto
+{
+    public int Id { get; set; }
+    public int TransactionId { get; set; }
+    public int UserId { get; set; }
+    public string Reason { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public string? AdminResolutionNotes { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+
+public class ResolveDisputeDto
+{
+    public string Status { get; set; } = "ApprovedRefund";
+    public string ResolutionNotes { get; set; } = string.Empty;
+}

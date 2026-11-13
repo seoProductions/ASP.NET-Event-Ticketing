@@ -5,6 +5,15 @@ namespace BackEnd.DatabaseModels;
 
 public partial class Dispute
 {
+
+public int Id { get; set; }
+public int TransactionId { get; set; }
+public int UserId { get; set; }
+public string Reason { get; set; } = string.Empty;
+public string Status { get; set; } = "Open"; // "Open", "Resolved", "Refunded", "Rejected"
+public string? AdminResolutionNotes { get; set; }
+public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
     public int Id { get; set; }
 
     public int TransactionId { get; set; }

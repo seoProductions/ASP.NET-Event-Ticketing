@@ -1,0 +1,308 @@
+﻿@page "/Admin"
+@page "/Admin"
+@layout FrontEnd.Layout.AdminLayout
+
+@using System.Net.Http.Json
+@using FrontEnd.Authentication
+@using FrontEnd.DTOs
+@using Microsoft.AspNetCore.Authorization
+
+@inject IHttpClientFactory HttpFactory
+@inject CustomAuthStateProvider Auth
+@inject NavigationManager Navigation
+
+@attribute [Authorize(Roles = "admin")]
+
+<PageTitle>Admin Dashboard</PageTitle>
+
+<div class="container">
+    <!-- Section Navigation Tabs -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "users" ? "active" : "")" @onclick='() => SetTab("users")'>
+                User Management (@users.Count)
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "events" ? "active" : "")" @onclick='() => SetTab("events")'>
+                System-Wide Events (@events.Count)
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "disputes" ? "active" : "")" @onclick='() => SetTab("disputes")'>
+                Disputes & Refunds (@disputes.Count(d => d.Status == "Open") Open)
+            </button>
+        </li>
+    </ul>
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="alert @(isError ? "alert-danger" : "alert-info")">@message</div>
+    }
+
+    <!-- TAB 1: User Management (Viewing / Suspending Users) -->
+    @if (activeTab == "users")
+    {
+        <div class="card shadow-sm">
+            <div class="card-header"><strong>Registered Users</strong></div>
+            <div class="table-responsive">
+                <table class="table table-striped align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Account Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var u in users)
+                        {
+                            <tr>
+                                <td>@u.Id</td>
+                                <td>@u.Username</td>
+                                <td><span class="badge bg-secondary">@u.Role</span></td>
+                                <td>
+                                    @if (u.IsSuspended)
+                                    {
+                                        <span class="badge bg-danger">Suspended</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm @(u.IsSuspended ? "btn-outline-success" : "btn-outline-warning")"
+                                            @onclick="() => ToggleUserSuspension(u.Id)">
+                                        @(u.IsSuspended ? "Reactivate" : "Suspend")
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <!-- TAB 2: System-Wide Event Management & Cancellations -->
+    @if (activeTab == "events")
+    {
+        <div class="card shadow-sm">
+            <div class="card-header"><strong>System-Wide Events</strong></div>
+            <div class="table-responsive">
+                <table class="table table-striped align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Organizer</th>
+                            <th>Date</th>
+                            <th>Price</th>
+                            <th>Tickets Sold</th>
+                            <th>Status</th>
+                            <th>Administrative Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ev in events)
+                        {
+                            <tr>
+                                <td>@ev.Id</td>
+                                <td>@ev.Title</td>
+                                <td>@ev.OrganizerUsername (#@ev.OrganizerId)</td>
+                                <td>@ev.EventDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>@ev.Price.ToString("C")</td>
+                                <td>@ev.TicketsSold</td>
+                                <td>
+                                    <span class="badge @(ev.Status == "Cancelled" ? "bg-danger" : "bg-success")">@ev.Status</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger"
+                                            disabled="@(ev.Status == "Cancelled")"
+                                            @onclick="() => CancelSystemEvent(ev.Id)">
+                                        Cancel Event & Refund
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <!-- TAB 3: Administrative Dispute Handling -->
+    @if (activeTab == "disputes")
+    {
+        <div class="card shadow-sm">
+            <div class="card-header"><strong>Customer Disputes & Cancellation Requests</strong></div>
+            <div class="table-responsive">
+                <table class="table table-striped align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Dispute ID</th>
+                            <th>Event</th>
+                            <th>User ID</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Resolution Notes</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in disputes)
+                        {
+                            <tr>
+                                <td>#@d.Id (Tx #@d.TransactionId)</td>
+                                <td>@d.EventTitle</td>
+                                <td>User #@d.UserId</td>
+                                <td>@d.Reason</td>
+                                <td>
+                                    <span class="badge @(d.Status == "Open" ? "bg-warning text-dark" : "bg-secondary")">@d.Status</span>
+                                </td>
+                                <td>
+                                    @if (d.Status == "Open")
+                                    {
+                                        <input class="form-control form-control-sm"
+                                               placeholder="Enter resolution notes..."
+                                               @bind="resolutionNotes[d.Id]" />
+                                    }
+                                    else
+                                    {
+                                        <small>@d.ResolutionNotes</small>
+                                    }
+                                </td>
+                                <td>
+                                    @if (d.Status == "Open")
+                                    {
+                                        <button class="btn btn-sm btn-success me-1"
+                                                @onclick='() => ResolveDispute(d.Id, "Refund")'>
+                                            Approve Refund
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                @onclick='() => ResolveDispute(d.Id, "Reject")'>
+                                            Reject
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Closed</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private string activeTab = "users";
+    private string message = "";
+    private bool isError = false;
+
+    private List<AdminUserDto> users = new();
+    private List<AdminEventDto> events = new();
+    private List<AdminDisputeDto> disputes = new();
+    private Dictionary<int, string> resolutionNotes = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAllAdminData();
+    }
+
+    private void SetTab(string tab)
+    {
+        activeTab = tab;
+        message = "";
+    }
+
+    private async Task LoadAllAdminData()
+    {
+        var client = HttpFactory.CreateClient("API");
+
+        var usersRes = await client.GetAsync("api/admin/users");
+        if (usersRes.IsSuccessStatusCode)
+            users = await usersRes.Content.ReadFromJsonAsync<List<AdminUserDto>>() ?? new();
+
+        var eventsRes = await client.GetAsync("api/admin/events");
+        if (eventsRes.IsSuccessStatusCode)
+            events = await eventsRes.Content.ReadFromJsonAsync<List<AdminEventDto>>() ?? new();
+
+        var disputesRes = await client.GetAsync("api/admin/disputes");
+        if (disputesRes.IsSuccessStatusCode)
+        {
+            disputes = await disputesRes.Content.ReadFromJsonAsync<List<AdminDisputeDto>>() ?? new();
+            foreach (var d in disputes.Where(x => x.Status == "Open"))
+            {
+                if (!resolutionNotes.ContainsKey(d.Id))
+                    resolutionNotes[d.Id] = "";
+            }
+        }
+    }
+
+    private async Task ToggleUserSuspension(int userId)
+    {
+        var client = HttpFactory.CreateClient("API");
+        var response = await client.PutAsync($"api/admin/users/{userId}/suspend", null);
+
+        if (response.IsSuccessStatusCode)
+        {
+            isError = false;
+            message = $"Updated suspension state for user #{userId}.";
+            await LoadAllAdminData();
+        }
+        else
+        {
+            isError = true;
+            message = "Failed to change user suspension state.";
+        }
+    }
+
+    private async Task CancelSystemEvent(int eventId)
+    {
+        var client = HttpFactory.CreateClient("API");
+        var response = await client.PutAsync($"api/admin/events/{eventId}/cancel", null);
+
+        if (response.IsSuccessStatusCode)
+        {
+            isError = false;
+            message = $"Event #{eventId} cancelled and all active tickets marked refunded.";
+            await LoadAllAdminData();
+        }
+        else
+        {
+            isError = true;
+            message = "Failed to cancel event.";
+        }
+    }
+
+    private async Task ResolveDispute(int disputeId, string action)
+    {
+        var client = HttpFactory.CreateClient("API");
+        resolutionNotes.TryGetValue(disputeId, out var notes);
+
+        var response = await client.PutAsJsonAsync($"api/admin/disputes/{disputeId}/resolve", new ResolveDisputeRequest
+        {
+            Action = action,
+            ResolutionNotes = notes ?? ""
+        });
+
+        if (response.IsSuccessStatusCode)
+        {
+            isError = false;
+            message = $"Dispute #{disputeId} resolved ({action}).";
+            await LoadAllAdminData();
+        }
+        else
+        {
+            isError = true;
+            message = "Failed to resolve dispute.";
+        }
+    }
+}
