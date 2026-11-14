@@ -59,23 +59,20 @@ settings:
 
 ``` powershell
 dotnet user-secrets init
-dotnet user-secrets set "Jwt:Key" "YOUR-LONG-RANDOM-SECRET-KEY"
+dotnet user-secrets set "Jwt:Key" "GENERATE-A-LONG-RANDOM-SECRET-KEY"
 dotnet user-secrets set "Jwt:Issuer" "EventTicketingAPI"
 dotnet user-secrets set "Jwt:Audience" "EventTicketingBlazor"
 ```
-
-Use your own secret key. Do not commit real secrets or passwords to
-GitHub.
 
 ### 3. Connect to MySQL through SSH
 
 Open a separate PowerShell window and start the SSH tunnel:
 
 ``` powershell
-ssh -p 10000 -L 10000:127.0.0.1:3306 dbuser@YOUR-SERVER-IP
+ssh -p 10000 -L 10000:127.0.0.1:3306 linux-user@SECRET-SERVER-IP
 ```
 
-Replace `dbuser` and `YOUR-SERVER-IP` with the database server's SSH
+Replace `linux-user` and `SECRET-SERVER-IP` with the database server's SSH
 login details. Keep this PowerShell window open while using the
 application.
 
@@ -136,18 +133,17 @@ packages are restored.
                                                              data.
 
   `GET`                   `/admin/dashboard`                 Admin dashboard data.
+  
   ----------------------------------------------------------------------------------
 
 ## Demo Account
 
 Use this sample account to test the application:
 
-  Username   Password   Role
-  ---------- ---------- -----------
-  `joe`      `1234`     Demo user
+User: `joey`      
+Password: `1234`
+Role: `Customer`
 
-These are sample credentials for this school project only. Do not use
-them for a real deployment.
 
 ## Known Limitations
 
